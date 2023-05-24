@@ -1,0 +1,164 @@
+import pyttsx3  # use to convert text to speech 
+import datetime
+import speech_recognition as sr # pip install SpeechRecognition  conerts mike data to text
+import pywhatkit
+import webbrowser as wb 
+import pyautogui
+import wikipedia
+import requests
+from newsapi import NewsApiClient
+#whtsapp
+#wikipedia
+#you tube
+#search google
+#date
+#time
+#weather ab505a534da44ec1a61fecb8f4e230ce
+#https://newsapi.org/v2/everything?q=tesla&from=2023-04-21&sortBy=publishedAt&apiKey=ab505a534da44ec1a61fecb8f4e230ce
+#http://api.openweathermap.org/data/2.5/weather?q=chandigarh&units=imperial&appid=f34880881fffc331a8fdb1689112d0ea
+#news update pip install newsapi-python
+#
+#
+
+
+
+engine = pyttsx3.init()
+
+def speak(text): # this functionality helps to speak 
+    engine.say(text)
+    engine.runAndWait()
+
+def time(): # time function
+    Time = datetime.datetime.now().strftime("%I:%M:%S") # hours =i, minutes = m, second=s
+    speak("the current time is::")
+    speak(Time)
+    
+
+
+def date():
+    year= int(datetime.datetime.now().year)
+    month= int(datetime.datetime.now().month)
+    date= int(datetime.datetime.now().day)
+    speak("the current date is  ")
+    speak(date)
+    speak(month)
+    speak(year)
+    
+def greeting():
+    hour = datetime.datetime.now().hour
+    if hour >=6 and hour <12:
+        speak("good morning sir")
+    elif hour >=12 and hour <18:
+        speak("good afternoon sir!")
+    elif hour >=18 and hour <24:
+        speak("good evening sir")
+    else:
+        speak("good night sir")
+        
+def wishme():
+    speak("welcome back sir!")
+    ##time()
+    #date()
+    greeting()
+    speak("Javris at your service, please tell how can i help you?")
+
+def takecommandCMD(): # this helps to take command from speach to text and after txting convert text into speech :)
+    query = input("please tell me how can i help you?\n")
+    return query
+
+def takecommandMic(): # use for take command from mike and reply you back
+    r = sr.Recognizer()
+    with sr .Microphone() as source:
+        print("listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source)
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language = "en-IN")
+        print("user said :"+query)
+        
+    except Exception as e:
+        print(e)
+        return "none"
+    return query
+
+def searchgoogle():
+    speak("what should i search for")
+    search = takecommandMic()
+    wb.open('https://www.google.com/search?q='+search)
+    
+def news():
+    newsapi = NewsApiClient(api_key='ab505a534da44ec1a61fecb8f4e230ce')
+    speak('what topic you need the news about?')
+    topic = takecommandMic()
+    data = newsapi.get_top_headlines(q='india',
+                                    language='en',
+                                    page_size=2)
+    newsdata = data['articles']
+    for x,y in enumerate(newsdata):
+        print(f'{x}{y["description"]}')
+        speak(f'{x}{y["description"]}')
+        
+    speak("sir that is for now i will update you in some time")
+
+        
+        
+if __name__ == "__main__":
+    wishme()
+    while True:
+        query = takecommandMic().lower()
+        if 'time' in query:
+            time()
+            
+        elif 'date' in query:
+            date()
+            
+        elif 'wikipedia' in query: #wikipedia on mike
+            speak("searching on wikipedia..")
+            query = query.replace("wikipedia","")
+            result = wikipedia.summary(query, sentences = 2)
+            print(result)
+            speak(result)
+            
+        elif 'search' in query:
+            searchgoogle()
+            
+        elif 'youtube' in query:
+            speak("what should i search for?")
+            topic = takecommandMic()
+            pywhatkit.playonyt(topic)
+            
+        elif 'whatsapp' in query:
+            speak("yes sir wait")
+            pywhatkit.sendwhatmsg("+91 8053600078","Hey", 14,33)
+            
+        elif 'weather' in query:
+            city = 'panipat'
+            url = 'http://api.openweathermap.org/data/2.5/weather?q={city}&units=imperial&appid=f34880881fffc331a8fdb1689112d0ea'
+            res = requests.get(url)
+            data = res.json()
+            weather = data['weather'] [0] ['main']
+            temp = data['main']['temp']
+            desp = data['weather'] [0] ['description']
+            temp = round((temp - 32) * 5/9)
+            print(weather)
+            print(temp)
+            print(desp)
+            speak('temperature : {} degree celcius'.format(temp))
+            speak('weather is {}'.format(desp))
+            
+        elif 'news' in query:
+            news()
+            
+        elif 'best friend' in query:
+            speak('thank you are also such a great friend and i will me your friend forever kartik')
+            
+        elif 'thank you' in query:
+            speak('My pleasure')
+            
+            
+        elif 'offline' in query:
+            quit()
+            
+            
+            
